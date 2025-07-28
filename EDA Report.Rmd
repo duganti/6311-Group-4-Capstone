@@ -1,0 +1,87 @@
+---
+title: "EDA Report"
+author: "Tim Dugan"
+date: "2025-07-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+```{r}
+#Loading in the data sets
+
+FYConsolidatedData = read.csv("h233.csv")
+LongitudeData3Y = read.csv("h226.csv")
+OfficeBasedVisits = read.csv("h227.csv")
+load("NSDUH_2021.RData")
+NSDUH = PUF2021_121323
+```
+
+```{r}
+#Trimming the data sets for usability
+
+keeps <- c("DUPERSID","AGE21X", "SEX", "RACEV1X", "EDUCYR", "POVCAT21", "TTLP21X", "INSCOV21", "REGION21", "MNHLTH53","PERWT21F")
+
+FYConsolidatedDataClean <- subset(FYConsolidatedData, select = keeps)
+
+FYConsolidatedDataClean
+```
+
+```{r}
+#Replacing numeric values with qualitative details
+
+#Race
+FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 1] <- 'White'
+FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 2] <- 'Black'
+FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 3] <- 'Amer Indian/Alaska Native'
+FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 4] <- 'Asian/Natv Hawaiian/Pacfc Isl'
+FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 6] <- 'Multiple Races Reported'
+
+#Sex
+FYConsolidatedDataClean$SEX[FYConsolidatedDataClean$SEX == 1] <- 'Male'
+FYConsolidatedDataClean$SEX[FYConsolidatedDataClean$SEX == 2] <- 'Female'
+
+#Categorical Poverty
+FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 1] <- 'Poor/Negative'
+FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 2] <- 'Near Poor'
+FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 3] <- 'Low Income'
+FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 4] <- 'Middle Income'
+FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 5] <- 'High Income'
+
+#Education when first entering MEPS
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 0] <- 'No School/Kindergarten'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR %in% 1:8] <- 'Elementary Grades'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR %in% 9:11] <- 'HighSchool Grades 9-11'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 12] <- 'Grade 12'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 13] <- '1 Year College'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 14] <- '2 Years College'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 15] <- '3 Years College'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 16] <- '4 Years College'
+FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 17] <- '5+ Years College'
+
+#Insurance Coverage
+FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 1] <- 'Any Private'
+FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 2] <- 'Public Only'
+FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 3] <- 'Uninsured'
+
+#Census Location (As of 12/31/21)
+FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 1] <- 'NorthEast'
+FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 2] <- 'MidWest'
+FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 3] <- 'South'
+FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 4] <- 'West'
+
+#Percieved Mental Health Status (As of Round 5/3)
+FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 1] <- 'Excellent'
+FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 2] <- 'Very Good'
+FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 3] <- 'Good'
+FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 4] <- 'Fair'
+FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 5] <- 'Poor'
+
+FYConsolidatedDataClean
+```
+
+``` {r}
+
+```
