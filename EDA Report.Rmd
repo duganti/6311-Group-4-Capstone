@@ -20,7 +20,7 @@ NSDUH = PUF2021_121323
 ```
 
 ```{r}
-#Trimming the data sets for usability
+#Trimming FYConsolidatedData for usability
 
 keeps <- c("DUPERSID","AGE21X", "SEX", "RACEV1X", "EDUCYR", "POVCAT21", "TTLP21X", "INSCOV21", "REGION21", "MNHLTH53","PERWT21F")
 
@@ -30,7 +30,7 @@ FYConsolidatedDataClean
 ```
 
 ```{r}
-#Replacing numeric values with qualitative details
+#Replacing numeric values with qualitative details FYConsolidatedDataClean
 
 #Race
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 1] <- 'White'
@@ -83,5 +83,60 @@ FYConsolidatedDataClean
 ```
 
 ``` {r}
+#Trimming OfficeBasedVisits
 
+keeps2 <- c("DUPERSID", "INDCODEX", "OCCCODEX", "EMPLINS")
+
+OfficeBasedVisitsJoining <- subset(OfficeBasedVisits, select = keeps2)
+
+OfficeBasedVisitsJoining
+```
+```{r}
+#Replacing numeric values with qualitative details OfficeBasedVisitsJoining
+
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == -1] <- 'Inapplicapble'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 1] <- 'Natural Resources'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 2] <- 'Mining'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 3] <- 'Consrtuction'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 4] <- 'Manufacturing'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 5] <- 'Wholesale & Retail Trade'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 6] <- 'Transportation & Utilities'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 7] <- 'Information'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 8] <- 'Financial Activities'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 9] <- 'Professional & Business Services'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 10] <- 'Education, Health, & Social Services'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 11] <- 'Leisure & Hospitality'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 12] <- 'Other Services'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 13] <- 'Public Administration'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 14] <- 'Military'
+OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 15] <- 'Unclassible Industry'
+
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == -1] <- 'Inapplicapble'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 1] <- 'Management, Business, & Financial Operations'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 2] <- 'Professional & Related Occupations'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 3] <- 'Service Occupations'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 4] <- 'Sales & Related Operations'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 5] <- 'Office & Administrative Support'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 6] <- 'Farming, Fishing, & Forestry'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 7] <- 'Construction, Extraction, & Maintenance'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 8] <- 'Production, Transportation, & Material Moving'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 9] <- 'Military Specific Occupations'
+OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 11] <- 'Unclassible Occupation'
+
+OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == -1] <- 'Inapplicapble'
+OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == 1] <- 'Yes'
+OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == 2] <- 'No'
+
+OfficeBasedVisitsJoining
+```
+
+```{r}
+#Joining FYConsolidatedDataClean and OfficeBasedVisitsJoining 
+FYOfficeInner <- merge(FYConsolidatedDataClean, OfficeBasedVisitsJoining, by = "DUPERSID")
+
+FYOfficeInner
+
+FYOfficeLeft <- merge(FYConsolidatedDataClean, OfficeBasedVisitsJoining, by = "DUPERSID", all.x = TRUE)
+
+FYOfficeLeft
 ```
