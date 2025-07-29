@@ -1,6 +1,6 @@
 ---
 title: "EDA Report"
-author: "Tim Dugan"
+author: "Group 4"
 date: "2025-07-28"
 output: html_document
 ---
@@ -14,7 +14,8 @@ library(tidyverse)
 
 FYConsolidatedData = read.csv("h233.csv")
 LongitudeData3Y = read.csv("h226.csv")
-OfficeBasedVisits = read.csv("h227.csv")
+OfficeBasedVisits = read.csv("h229g.csv")
+JobFile = read.csv("h227.csv")
 load("NSDUH_2021.RData")
 NSDUH = PUF2021_121323
 ```
@@ -72,71 +73,117 @@ FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 2] <- 'MidW
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 3] <- 'South'
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 4] <- 'West'
 
-#Percieved Mental Health Status (As of Round 5/3)
-FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 1] <- 'Excellent'
-FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 2] <- 'Very Good'
-FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 3] <- 'Good'
-FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 4] <- 'Fair'
-FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 5] <- 'Poor'
+#Percieved Mental Health Status (As of Round 5/3) (Commenting these out for visual's sake)
+#FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 1] <- 'Excellent'
+#FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 2] <- 'Very Good'
+#FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 3] <- 'Good'
+#FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 4] <- 'Fair'
+#FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 5] <- 'Poor'
 
 FYConsolidatedDataClean
 ```
 
 ``` {r}
-#Trimming OfficeBasedVisits
+#Trimming JobFile
 
 keeps2 <- c("DUPERSID", "INDCODEX", "OCCCODEX", "EMPLINS")
 
-OfficeBasedVisitsJoining <- subset(OfficeBasedVisits, select = keeps2)
+JobFileJoining <- subset(JobFile, select = keeps2)
 
-OfficeBasedVisitsJoining
+JobFileJoining
 ```
 ```{r}
-#Replacing numeric values with qualitative details OfficeBasedVisitsJoining
+#Replacing numeric values with qualitative details JobFileJoining
 
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == -1] <- 'Inapplicapble'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 1] <- 'Natural Resources'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 2] <- 'Mining'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 3] <- 'Consrtuction'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 4] <- 'Manufacturing'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 5] <- 'Wholesale & Retail Trade'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 6] <- 'Transportation & Utilities'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 7] <- 'Information'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 8] <- 'Financial Activities'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 9] <- 'Professional & Business Services'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 10] <- 'Education, Health, & Social Services'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 11] <- 'Leisure & Hospitality'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 12] <- 'Other Services'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 13] <- 'Public Administration'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 14] <- 'Military'
-OfficeBasedVisitsJoining$INDCODEX[OfficeBasedVisitsJoining$INDCODEX == 15] <- 'Unclassible Industry'
+#Industry Code
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == -1] <- 'Inapplicapble'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 1] <- 'Natural Resources'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 2] <- 'Mining'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 3] <- 'Consrtuction'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 4] <- 'Manufacturing'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 5] <- 'Wholesale & Retail Trade'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 6] <- 'Transportation & Utilities'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 7] <- 'Information'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 8] <- 'Financial Activities'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 9] <- 'Professional & Business Services'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 10] <- 'Education, Health, & Social Services'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 11] <- 'Leisure & Hospitality'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 12] <- 'Other Services'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 13] <- 'Public Administration'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 14] <- 'Military'
+JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 15] <- 'Unclassible Industry'
 
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == -1] <- 'Inapplicapble'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 1] <- 'Management, Business, & Financial Operations'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 2] <- 'Professional & Related Occupations'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 3] <- 'Service Occupations'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 4] <- 'Sales & Related Operations'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 5] <- 'Office & Administrative Support'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 6] <- 'Farming, Fishing, & Forestry'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 7] <- 'Construction, Extraction, & Maintenance'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 8] <- 'Production, Transportation, & Material Moving'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 9] <- 'Military Specific Occupations'
-OfficeBasedVisitsJoining$OCCCODEX[OfficeBasedVisitsJoining$OCCCODEX == 11] <- 'Unclassible Occupation'
+#Occupation Code
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == -1] <- 'Inapplicapble'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 1] <- 'Management, Business, & Financial Operations'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 2] <- 'Professional & Related Occupations'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 3] <- 'Service Occupations'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 4] <- 'Sales & Related Operations'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 5] <- 'Office & Administrative Support'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 6] <- 'Farming, Fishing, & Forestry'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 7] <- 'Construction, Extraction, & Maintenance'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 8] <- 'Production, Transportation, & Material Moving'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 9] <- 'Military Specific Occupations'
+JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 11] <- 'Unclassible Occupation'
 
-OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == -1] <- 'Inapplicapble'
-OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == 1] <- 'Yes'
-OfficeBasedVisitsJoining$EMPLINS[OfficeBasedVisitsJoining$EMPLINS == 2] <- 'No'
+#Has Health Insurance through main job
+JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == -1] <- 'Inapplicapble'
+JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == 1] <- 'Yes'
+JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == 2] <- 'No'
 
-OfficeBasedVisitsJoining
+JobFileJoining
 ```
 
 ```{r}
-#Joining FYConsolidatedDataClean and OfficeBasedVisitsJoining 
-FYOfficeInner <- merge(FYConsolidatedDataClean, OfficeBasedVisitsJoining, by = "DUPERSID")
+#Joining FYConsolidatedDataClean and JobFileJoining 
+FYJobInner <- merge(FYConsolidatedDataClean, JobFileJoining, by = "DUPERSID")
+
+FYJobInner
+
+FYJobLeft <- merge(FYConsolidatedDataClean, JobFileJoining, by = "DUPERSID", all.x = TRUE)
+
+FYJobLeft
+```
+
+```{r}
+#Trimming OfficeBasedVisits
+
+keeps3 <- c("DUPERSID", "MEDPTYPE_M18", "VSTCTGRY", "DOCATLOC", "MEDPRESC")
+
+OfficeBasedVisitsClean <- subset(OfficeBasedVisits, select = keeps3)
+
+OfficeBasedVisitsClean
+```
+
+```{r}
+#Replacing numeric values with qualitative details OfficeBasedVisitsClean
+
+#Type of Med Person Patient Talked to on Visit (Only labeling the mental health ones. If someone can double check to make sure I didn't miss one that would be great)
+OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 6] <- 'Mental Health Cnslr/Marital or Fam Therapist'
+OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 13] <- 'Psychologist'
+OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 14] <- 'Social Worker'
+
+#Visit Category (Only labeling the Mental health one)
+OfficeBasedVisitsClean$VSTCTGRY[OfficeBasedVisitsClean$VSTCTGRY == 4] <- 'Psychotherapy/Mental Health Counsiling'
+
+#Was there a MD at location where Patient saw the Provider?
+OfficeBasedVisitsClean$DOCATLOC[OfficeBasedVisitsClean$DOCATLOC == 1] <- 'Yes'
+OfficeBasedVisitsClean$DOCATLOC[OfficeBasedVisitsClean$DOCATLOC == 2] <- 'No'
+
+#Medication Perscribed to Patient
+OfficeBasedVisitsClean$MEDPRESC[OfficeBasedVisitsClean$MEDPRESC == 1] <- 'Yes'
+OfficeBasedVisitsClean$MEDPRESC[OfficeBasedVisitsClean$MEDPRESC == 2] <- 'No'
+
+OfficeBasedVisitsClean
+```
+
+```{r}
+#Joining FYConsolidatedDataClean and OfficeBasedVisitsClean 
+FYOfficeInner <- merge(FYConsolidatedDataClean, OfficeBasedVisitsClean, by = "DUPERSID")
 
 FYOfficeInner
 
-FYOfficeLeft <- merge(FYConsolidatedDataClean, OfficeBasedVisitsJoining, by = "DUPERSID", all.x = TRUE)
+FYOfficeLeft <- merge(FYConsolidatedDataClean, OfficeBasedVisitsClean, by = "DUPERSID", all.x = TRUE)
 
 FYOfficeLeft
 ```
