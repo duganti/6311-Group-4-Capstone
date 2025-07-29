@@ -187,3 +187,23 @@ FYOfficeLeft <- merge(FYConsolidatedDataClean, OfficeBasedVisitsClean, by = "DUP
 
 FYOfficeLeft
 ```
+
+```{r}
+ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = AGE21X)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "white") +
+  labs(title = "Range o+f Young Men Aged 18-25", x = "AGE", y = "Amount")
+```
+
+```{r}
+ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = MNHLTH53)) +
+  geom_bar(fill = "red", color = "black", alpha = 0.7) +
+  labs(title = "Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
+```
+
+```{r}
+ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = EDUCYR, fill = POVCAT21)) +
+  geom_bar(position = "fill", color = "red") +
+  labs(title = "Education vs Poverty Status Ages 18-25", x = "Level of Education", y = "Poverty Status") + 
+  scale_fill_manual(values = c("lightgreen", "orange", "yellow", "green", "blue")) +
+  theme_minimal()
+```
