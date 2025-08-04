@@ -292,7 +292,49 @@ con_table <- FYConsolidatedDataClean %>%
 
 con_table
 ```
+```{r}
+#Making a varaible that counts the ammount of recorded visits to Psychotherapy/Mental Health Counsiling by individual ID
+
+Counciling <- FYOfficeLeft %>% filter(VSTCTGRY == 'Psychotherapy/Mental Health Counsiling')
+
+CouncilingCount <- count(Counciling$DUPERSID)
+
+colnames(CouncilingCount) <- c("DUPERSID", "MentalHealthAppointments")
+
+FYCouncilingLeft <- merge(FYConsolidatedDataClean, CouncilingCount, by = "DUPERSID", all.x = TRUE)
+
+FYCouncilingLeft$MentalHealthAppointments[is.na(FYCouncilingLeft$MentalHealthAppointments)] <- 0
+
+#Made a small table for the count of recorded Visits
+
+VisitTable <- count(FYCouncilingLeft$MentalHealthAppointments)
+
+colnames(VisitTable) <- c("MentalHealthAppointments", "Frequency")
+
+VisitTable
+```
 
 ```{r}
+#Made a jitter plot to try and visualize frequency of visits to mental health status. Too little variables within the 18-25 range and skewed towards the lower end made the graph not turn out well.
+
+ggplot(FYCouncilingLeft %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53, y = MentalHealthAppointments)) +
+  geom_jitter(position = "jitter") +
+  labs(title = "Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
+```
+
+```{r}
+ggplot(FYCouncilingLeft %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53)) +
+  geom_bar(fill = "red", color = "black", alpha = 0.7) +
+  labs(title = "Therapy Attending Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
+```
+
+```{r}
+ggplot(FYCouncilingLeft %>% filter(MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53)) +
+  geom_bar(fill = "red", color = "black", alpha = 0.7) +
+  labs(title = "Therapy Attending Individuals Mental Health Status", x = "Mental Health Status", y = "Amount")
+```
+
+```{r}
+
 
 ```
