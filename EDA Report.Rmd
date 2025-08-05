@@ -293,12 +293,13 @@ con_table <- FYConsolidatedDataClean %>%
 
 con_table
 ```
+
 ```{r}
-#Making a varaible that counts the ammount of recorded visits to Psychotherapy/Mental Health Counsiling by individual ID
+#Making a varaible that counts the ammount of recorded visits to Psychotherapy/Mental Health Counciling by individual ID
 
 Counciling <- FYOfficeLeft %>% filter(VSTCTGRY == 'Psychotherapy/Mental Health Counsiling')
 
-CouncilingCount <- count(Counciling$DUPERSID)
+CouncilingCount <- plyr::count(Counciling$DUPERSID)
 
 colnames(CouncilingCount) <- c("DUPERSID", "MentalHealthAppointments")
 
@@ -308,7 +309,7 @@ FYCouncilingLeft$MentalHealthAppointments[is.na(FYCouncilingLeft$MentalHealthApp
 
 #Made a small table for the count of recorded Visits
 
-VisitTable <- count(FYCouncilingLeft$MentalHealthAppointments)
+VisitTable <- plyr::count(FYCouncilingLeft$MentalHealthAppointments)
 
 colnames(VisitTable) <- c("MentalHealthAppointments", "Frequency")
 
@@ -336,22 +337,34 @@ ggplot(FYCouncilingLeft %>% filter(MNHLTH53 > 0 & MentalHealthAppointments > 0),
 ```
 
 ```{r}
+FYCouncilingNA <- FYCouncilingLeft %>%
+  filter(
+    !is.na(EDUCYR),
+    !is.na(MNHLTH53),
+    !SEX %in% c(-1),
+    !REGION21 %in% c(-1),
+    !POVCAT21 %in% c(-1),
+    !INSCOV21 %in% c(-1)
+  )
+```
+
+```{r}
 #Splitting Training and Test Sets. (Specifically Counseling Join)
 
-FYCouncilingSize <- floor(.75*nrow(FYCouncilingLeft))
+FYCouncilingSize <- floor(.75*nrow(FYCouncilingNA))
 
 set.seed(69420)
 
-train <- sample(seq_len(nrow(FYCouncilingLeft)), size = FYCouncilingSize)
+train <- sample(seq_len(nrow(FYCouncilingNA)), size = FYCouncilingSize)
 
-FYCouncilingTrain <- FYCouncilingLeft[sorter, ]
-FYCouncilingTest <- FYCouncilingLeft[-sorter, ]
-FYCouncilingTestMental <- FYCouncilingLeft$MNHLTH53[-sorter]
+FYCouncilingTrain <- FYCouncilingNA[train, ]
+FYCouncilingTest <- FYCouncilingNA[-train, ]
+FYCouncilingTestMental <- FYCouncilingNA$MNHLTH53[-train]
 ```
 
 ```{r}
 FYCouncilingGLM <- glm(MNHLTH53 ~ .,
-                        data = FYCouncilingLeft, subset = train)
+                        data = FYCouncilingNA, subset = train)
 
 summary(FYCouncilingGLM)
 ```
@@ -362,7 +375,7 @@ summary(FYCouncilingGLM)
 require(MASS)
 
 FYCouncilingLDA <- lda(MNHLTH53 ~ . - EDUCYR,
-                       data = FYCouncilingLeft, subset = train)
+                       data = FYCouncilingNA, subset = train)
 
 FYCouncilingLDA
 ```
@@ -378,10 +391,4 @@ table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
 #Now that the LDA is set up, we should really think about what to do with the missing data
 ```
-
-```{r}
-
-
-```
-
 
