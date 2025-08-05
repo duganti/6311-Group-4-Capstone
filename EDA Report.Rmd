@@ -335,6 +335,51 @@ ggplot(FYCouncilingLeft %>% filter(MNHLTH53 > 0 & MentalHealthAppointments > 0),
 ```
 
 ```{r}
+#Splitting Training and Test Sets. (Specifically Counseling Join)
+
+FYCouncilingSize <- floor(.75*nrow(FYCouncilingLeft))
+
+set.seed(69420)
+
+train <- sample(seq_len(nrow(FYCouncilingLeft)), size = FYCouncilingSize)
+
+FYCouncilingTrain <- FYCouncilingLeft[sorter, ]
+FYCouncilingTest <- FYCouncilingLeft[-sorter, ]
+FYCouncilingTestMental <- FYCouncilingLeft$MNHLTH53[-sorter]
+```
+
+```{r}
+FYCouncilingGLM <- glm(MNHLTH53 ~ .,
+                        data = FYCouncilingLeft, subset = train)
+
+summary(FYCouncilingGLM)
+```
+
+```{r}
+#LDA on FYCounciling
+
+require(MASS)
+
+FYCouncilingLDA <- lda(MNHLTH53 ~ . - EDUCYR,
+                       data = FYCouncilingLeft, subset = train)
+
+FYCouncilingLDA
+```
+
+```{r}
+#Using LDA as a Predictor
+
+FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
+
+#names(FYCouncilingLDAPredict)
+
+table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
+
+#Now that the LDA is set up, we should really think about what to do with the missing data
+```
+
+```{r}
 
 
 ```
+
