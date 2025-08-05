@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(e1071)
+library(corrplot)
 ```
 
 ```{r}
@@ -268,11 +269,6 @@ print(correlation_matrix)
 ```
 
 ```{r}
-install.packages("corrplot")
-library(corrplot)
-```
-
-```{r}
 #Correlation matrix visual.
 corrplot(correlation_matrix, method = "circle",
          addCoef.col = "black")
@@ -350,12 +346,12 @@ ggplot(FYCouncilingLeft %>% filter(MNHLTH53 > 0 & MentalHealthAppointments > 0),
 ```{r}
 FYCouncilingNA <- FYCouncilingLeft %>%
   filter(
-    !is.na(EDUCYR),
-    !is.na(MNHLTH53),
-    !SEX %in% c(-1),
-    !REGION21 %in% c(-1),
-    !POVCAT21 %in% c(-1),
-    !INSCOV21 %in% c(-1)
+    EDUCYR > 0,
+    MNHLTH53 > 0,
+    SEX > 0,
+    REGION21 > 0,
+    POVCAT21 > 0,
+    INSCOV21> 0
   )
 ```
 
@@ -402,4 +398,3 @@ table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
 #Now that the LDA is set up, we should really think about what to do with the missing data
 ```
-
