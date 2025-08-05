@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(e1071)
+library(plyr)
 ```
 
 ```{r}
@@ -382,4 +383,5 @@ table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
 
 ```
+
 
