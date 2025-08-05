@@ -391,8 +391,3 @@ table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 #Now that the LDA is set up, we should really think about what to do with the missing data
 ```
 
-```{r}
-
-
-```
-
