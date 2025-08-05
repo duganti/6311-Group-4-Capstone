@@ -8,7 +8,6 @@ output: html_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(e1071)
-library(plyr)
 ```
 
 ```{r}
@@ -94,6 +93,7 @@ JobFileJoining <- subset(JobFile, select = keeps2)
 
 JobFileJoining
 ```
+
 ```{r}
 #Replacing numeric values with qualitative details JobFileJoining
 
@@ -191,18 +191,21 @@ FYOfficeLeft
 ```
 
 ```{r}
+#Range of Young Men Aged 18-25 visual.
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = AGE21X)) +
   geom_histogram(binwidth = 1, fill = "red", color = "white") +
   labs(title = "Range of Young Men Aged 18-25", x = "AGE", y = "Amount")
 ```
 
 ```{r}
+#Young Men (18-25) Mental Health Status bar chart.
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = MNHLTH53)) +
   geom_bar(fill = "red", color = "black", alpha = 0.7) +
   labs(title = "Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
 ```
 
 ```{r}
+#Education vs Poverty Status Ages 18-25 visual.
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & EDUCYR > 0), aes(x = EDUCYR, fill = POVCAT21)) +
   geom_bar(position = "fill", color = "red") +
   labs(title = "Education vs Poverty Status Ages 18-25", x = "Level of Education", y = "Poverty Status") + 
@@ -212,6 +215,7 @@ ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X 
 ```
 
 ```{r}
+#Average mean, median, and sd of mental health status per age.
 mean_mental_health_status <- FYConsolidatedDataClean %>% 
   group_by(AGE21X) %>% 
   summarise(
@@ -227,6 +231,7 @@ print(mean_mental_health_status_na)
 ```
 
 ```{r}
+#Creating age brackets.
 FYConsolidatedDataClean$AGE_GROUP <- cut(FYConsolidatedDataClean$AGE21X,
                                          breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90),
                                          labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90"),
@@ -234,6 +239,7 @@ FYConsolidatedDataClean$AGE_GROUP <- cut(FYConsolidatedDataClean$AGE21X,
 ```
 
 ```{r}
+#Mean mental health status by age group.
 mean_mental_health_agegroup <- FYConsolidatedDataClean %>%
   filter(!is.na(MNHLTH53) & !is.na(AGE_GROUP)) %>%
   group_by(AGE_GROUP) %>%
@@ -243,6 +249,7 @@ head(mean_mental_health_agegroup)
 ```
 
 ```{r}
+#Mean Mental Health Status by Age Group bar chart.
 ggplot(mean_mental_health_agegroup, aes(x = AGE_GROUP, y = mean_status)) +
   geom_bar(stat = "identity", fill = "lightgreen", color = "green", alpha = 0.7) +
   labs(title = "Mean Mental Health Status by Age Group", x = "Age", y = "Mental Health Status") + 
@@ -251,6 +258,7 @@ ggplot(mean_mental_health_agegroup, aes(x = AGE_GROUP, y = mean_status)) +
 ```
 
 ```{r}
+#Correlation matrix.
 numeric_variables <- FYConsolidatedDataClean %>%
   select(where(is.numeric))
 
@@ -265,11 +273,13 @@ library(corrplot)
 ```
 
 ```{r}
+#Correlation matrix visual.
 corrplot(correlation_matrix, method = "circle",
          addCoef.col = "black")
 ```
 
 ```{r}
+#Categorical variable table.
 cat_table <- FYConsolidatedDataClean %>%
   filter(!is.na(POVCAT21)) %>%
   count(POVCAT21) %>%
@@ -279,6 +289,7 @@ cat_table
 ```
 
 ```{r}
+#Continuous variable table involving skewness, kurtosis, sd, median, mean, minimum and maximum.
 con_table <- FYConsolidatedDataClean %>%
   filter(!is.na(MNHLTH53)) %>%
   summarise(
