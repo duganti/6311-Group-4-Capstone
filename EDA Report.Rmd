@@ -6,13 +6,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+#Loading in the necessary libraries (TD/AH).
 library(tidyverse)
 library(e1071)
 library(corrplot)
 ```
 
 ```{r}
-#Loading in the data sets
+#Loading in the data sets (TD).
 
 FYConsolidatedData = read.csv("h233.csv")
 LongitudeData3Y = read.csv("h226.csv")
@@ -23,7 +24,7 @@ NSDUH = PUF2021_121323
 ```
 
 ```{r}
-#Trimming FYConsolidatedData for usability
+#Trimming FYConsolidatedData for usability (TD).
 
 keeps <- c("DUPERSID","AGE21X", "SEX", "RACEV1X", "EDUCYR", "POVCAT21", "TTLP21X", "INSCOV21", "REGION21", "MNHLTH53","PERWT21F")
 
@@ -33,27 +34,27 @@ FYConsolidatedDataClean
 ```
 
 ```{r}
-#Replacing numeric values with qualitative details FYConsolidatedDataClean
+#Replacing numeric values with qualitative details FYConsolidatedDataClean (TD).
 
-#Race
+#Race (TD).
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 1] <- 'White'
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 2] <- 'Black'
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 3] <- 'Amer Indian/Alaska Native'
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 4] <- 'Asian/Natv Hawaiian/Pacfc Isl'
 FYConsolidatedDataClean$RACEV1X[FYConsolidatedDataClean$RACEV1X == 6] <- 'Multiple Races Reported'
 
-#Sex
+#Sex (TD).
 FYConsolidatedDataClean$SEX[FYConsolidatedDataClean$SEX == 1] <- 'Male'
 FYConsolidatedDataClean$SEX[FYConsolidatedDataClean$SEX == 2] <- 'Female'
 
-#Categorical Poverty
+#Categorical Poverty (TD).
 FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 1] <- 'Poor/Negative'
 FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 2] <- 'Near Poor'
 FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 3] <- 'Low Income'
 FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 4] <- 'Middle Income'
 FYConsolidatedDataClean$POVCAT21[FYConsolidatedDataClean$POVCAT21 == 5] <- 'High Income'
 
-#Education when first entering MEPS
+#Education when first entering MEPS (TD).
 FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 0] <- 'No School/Kindergarten'
 FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR %in% 1:8] <- 'Elementary Grades'
 FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR %in% 9:11] <- 'HighSchool Grades 9-11'
@@ -64,18 +65,18 @@ FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 15] <- '3 Years
 FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 16] <- '4 Years College'
 FYConsolidatedDataClean$EDUCYR[FYConsolidatedDataClean$EDUCYR == 17] <- '5+ Years College'
 
-#Insurance Coverage
+#Insurance Coverage (TD).
 FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 1] <- 'Any Private'
 FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 2] <- 'Public Only'
 FYConsolidatedDataClean$INSCOV21[FYConsolidatedDataClean$INSCOV21 == 3] <- 'Uninsured'
 
-#Census Location (As of 12/31/21)
+#Census Location (As of 12/31/21) (TD).
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 1] <- 'NorthEast'
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 2] <- 'MidWest'
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 3] <- 'South'
 FYConsolidatedDataClean$REGION21[FYConsolidatedDataClean$REGION21 == 4] <- 'West'
 
-#Percieved Mental Health Status (As of Round 5/3) (Commenting these out for visual's sake)
+#Percieved Mental Health Status (As of Round 5/3) (Commenting these out for visual's sake) (TD).
 #FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 1] <- 'Excellent'
 #FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 2] <- 'Very Good'
 #FYConsolidatedDataClean$MNHLTH53[FYConsolidatedDataClean$MNHLTH53 == 3] <- 'Good'
@@ -86,7 +87,7 @@ FYConsolidatedDataClean
 ```
 
 ``` {r}
-#Trimming JobFile
+#Trimming JobFile (TD).
 
 keeps2 <- c("DUPERSID", "INDCODEX", "OCCCODEX", "EMPLINS")
 
@@ -96,9 +97,9 @@ JobFileJoining
 ```
 
 ```{r}
-#Replacing numeric values with qualitative details JobFileJoining
+#Replacing numeric values with qualitative details JobFileJoining (TD).
 
-#Industry Code
+#Industry Code (TD).
 JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == -1] <- 'Inapplicapble'
 JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 1] <- 'Natural Resources'
 JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 2] <- 'Mining'
@@ -116,7 +117,7 @@ JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 13] <- 'Public Administration
 JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 14] <- 'Military'
 JobFileJoining$INDCODEX[JobFileJoining$INDCODEX == 15] <- 'Unclassible Industry'
 
-#Occupation Code
+#Occupation Code (TD).
 JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == -1] <- 'Inapplicapble'
 JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 1] <- 'Management, Business, & Financial Operations'
 JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 2] <- 'Professional & Related Occupations'
@@ -129,7 +130,7 @@ JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 8] <- 'Production, Transporta
 JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 9] <- 'Military Specific Occupations'
 JobFileJoining$OCCCODEX[JobFileJoining$OCCCODEX == 11] <- 'Unclassible Occupation'
 
-#Has Health Insurance through main job
+#Has Health Insurance through main job (TD).
 JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == -1] <- 'Inapplicapble'
 JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == 1] <- 'Yes'
 JobFileJoining$EMPLINS[JobFileJoining$EMPLINS == 2] <- 'No'
@@ -138,7 +139,7 @@ JobFileJoining
 ```
 
 ```{r}
-#Joining FYConsolidatedDataClean and JobFileJoining 
+#Joining FYConsolidatedDataClean and JobFileJoining (TD).
 FYJobInner <- merge(FYConsolidatedDataClean, JobFileJoining, by = "DUPERSID")
 
 FYJobInner
@@ -149,7 +150,7 @@ FYJobLeft
 ```
 
 ```{r}
-#Trimming OfficeBasedVisits
+#Trimming OfficeBasedVisits (TD).
 
 keeps3 <- c("DUPERSID", "MEDPTYPE_M18", "VSTCTGRY", "DOCATLOC", "MEDPRESC")
 
@@ -159,21 +160,21 @@ OfficeBasedVisitsClean
 ```
 
 ```{r}
-#Replacing numeric values with qualitative details OfficeBasedVisitsClean
+#Replacing numeric values with qualitative details OfficeBasedVisitsClean (TD).
 
-#Type of Med Person Patient Talked to on Visit (Only labeling the mental health ones. If someone can double check to make sure I didn't miss one that would be great)
+#Type of Med Person Patient Talked to on Visit (Only labeling the mental health ones. If someone can double check to make sure I didn't miss one that would be great) (TD).
 OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 6] <- 'Mental Health Cnslr/Marital or Fam Therapist'
 OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 13] <- 'Psychologist'
 OfficeBasedVisitsClean$MEDPTYPE_M18[OfficeBasedVisitsClean$MEDPTYPE_M18 == 14] <- 'Social Worker'
 
-#Visit Category (Only labeling the Mental health one)
+#Visit Category (Only labeling the Mental health one) (TD).
 OfficeBasedVisitsClean$VSTCTGRY[OfficeBasedVisitsClean$VSTCTGRY == 4] <- 'Psychotherapy/Mental Health Counsiling'
 
-#Was there a MD at location where Patient saw the Provider?
+#Was there a MD at location where Patient saw the Provider? (TD).
 OfficeBasedVisitsClean$DOCATLOC[OfficeBasedVisitsClean$DOCATLOC == 1] <- 'Yes'
 OfficeBasedVisitsClean$DOCATLOC[OfficeBasedVisitsClean$DOCATLOC == 2] <- 'No'
 
-#Medication Perscribed to Patient
+#Medication Perscribed to Patient (TD).
 OfficeBasedVisitsClean$MEDPRESC[OfficeBasedVisitsClean$MEDPRESC == 1] <- 'Yes'
 OfficeBasedVisitsClean$MEDPRESC[OfficeBasedVisitsClean$MEDPRESC == 2] <- 'No'
 
@@ -181,7 +182,7 @@ OfficeBasedVisitsClean
 ```
 
 ```{r}
-#Joining FYConsolidatedDataClean and OfficeBasedVisitsClean 
+#Joining FYConsolidatedDataClean and OfficeBasedVisitsClean (TD).
 FYOfficeInner <- merge(FYConsolidatedDataClean, OfficeBasedVisitsClean, by = "DUPERSID")
 
 FYOfficeInner
@@ -192,21 +193,21 @@ FYOfficeLeft
 ```
 
 ```{r}
-#Range of Young Men Aged 18-25 visual.
+#Range of Young Men Aged 18-25 visual (AH).
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = AGE21X)) +
   geom_histogram(binwidth = 1, fill = "red", color = "white") +
   labs(title = "Range of Young Men Aged 18-25", x = "AGE", y = "Amount")
 ```
 
 ```{r}
-#Young Men (18-25) Mental Health Status bar chart.
+#Young Men (18-25) Mental Health Status bar chart (AH).
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = MNHLTH53)) +
   geom_bar(fill = "red", color = "black", alpha = 0.7) +
   labs(title = "Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
 ```
 
 ```{r}
-#Education vs Poverty Status Ages 18-25 visual.
+#Education vs Poverty Status Ages 18-25 visual (AH).
 ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & EDUCYR > 0), aes(x = EDUCYR, fill = POVCAT21)) +
   geom_bar(position = "fill", color = "red") +
   labs(title = "Education vs Poverty Status Ages 18-25", x = "Level of Education", y = "Poverty Status") + 
@@ -216,7 +217,7 @@ ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X 
 ```
 
 ```{r}
-#Average mean, median, and sd of mental health status per age.
+#Average mean, median, and sd of mental health status per age (AH).
 mean_mental_health_status <- FYConsolidatedDataClean %>% 
   group_by(AGE21X) %>% 
   summarise(
@@ -232,7 +233,7 @@ print(mean_mental_health_status_na)
 ```
 
 ```{r}
-#Creating age brackets.
+#Creating age brackets (AH).
 FYConsolidatedDataClean$AGE_GROUP <- cut(FYConsolidatedDataClean$AGE21X,
                                          breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90),
                                          labels = c("0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81-90"),
@@ -240,7 +241,7 @@ FYConsolidatedDataClean$AGE_GROUP <- cut(FYConsolidatedDataClean$AGE21X,
 ```
 
 ```{r}
-#Mean mental health status by age group.
+#Mean mental health status by age group (AH).
 mean_mental_health_agegroup <- FYConsolidatedDataClean %>%
   filter(!is.na(MNHLTH53) & !is.na(AGE_GROUP)) %>%
   group_by(AGE_GROUP) %>%
@@ -250,7 +251,7 @@ head(mean_mental_health_agegroup)
 ```
 
 ```{r}
-#Mean Mental Health Status by Age Group bar chart.
+#Mean Mental Health Status by Age Group bar chart (AH).
 ggplot(mean_mental_health_agegroup, aes(x = AGE_GROUP, y = mean_status)) +
   geom_bar(stat = "identity", fill = "lightgreen", color = "green", alpha = 0.7) +
   labs(title = "Mean Mental Health Status by Age Group", x = "Age", y = "Mental Health Status") + 
@@ -259,7 +260,7 @@ ggplot(mean_mental_health_agegroup, aes(x = AGE_GROUP, y = mean_status)) +
 ```
 
 ```{r}
-#Correlation matrix.
+#Correlation matrix (AH).
 numeric_variables <- FYConsolidatedDataClean %>%
   select(where(is.numeric))
 
@@ -269,13 +270,13 @@ print(correlation_matrix)
 ```
 
 ```{r}
-#Correlation matrix visual.
+#Correlation matrix visual (AH).
 corrplot(correlation_matrix, method = "circle",
          addCoef.col = "black")
 ```
 
 ```{r}
-#Categorical variable table.
+#Categorical variable table (AH).
 cat_table <- FYConsolidatedDataClean %>%
   filter(!is.na(POVCAT21)) %>%
   count(POVCAT21) %>%
@@ -285,7 +286,8 @@ cat_table
 ```
 
 ```{r}
-#Continuous variable table involving skewness, kurtosis, sd, median, mean, minimum and maximum.
+#Continuous variable table involving skewness, kurtosis, sd, median, mean, minimum and maximum (AH).
+
 con_table <- FYConsolidatedDataClean %>%
   filter(!is.na(MNHLTH53)) %>%
   summarise(
@@ -302,7 +304,7 @@ con_table
 ```
 
 ```{r}
-#Making a varaible that counts the ammount of recorded visits to Psychotherapy/Mental Health Counciling by individual ID
+#Making a varaible that counts the ammount of recorded visits to Psychotherapy/Mental Health Counciling by individual ID (TD).
 
 Counciling <- FYOfficeLeft %>% filter(VSTCTGRY == 'Psychotherapy/Mental Health Counsiling')
 
@@ -314,7 +316,7 @@ FYCouncilingLeft <- merge(FYConsolidatedDataClean, CouncilingCount, by = "DUPERS
 
 FYCouncilingLeft$MentalHealthAppointments[is.na(FYCouncilingLeft$MentalHealthAppointments)] <- 0
 
-#Made a small table for the count of recorded Visits
+#Made a small table for the count of recorded Visits (TD).
 
 VisitTable <- plyr::count(FYCouncilingLeft$MentalHealthAppointments)
 
@@ -324,7 +326,7 @@ VisitTable
 ```
 
 ```{r}
-#Made a jitter plot to try and visualize frequency of visits to mental health status. Too little variables within the 18-25 range and skewed towards the lower end made the graph not turn out well.
+#Made a jitter plot to try and visualize frequency of visits to mental health status. Too little variables within the 18-25 range and skewed towards the lower end made the graph not turn out well. (TD).
 
 ggplot(FYCouncilingLeft %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53, y = MentalHealthAppointments)) +
   geom_jitter(position = "jitter") +
@@ -332,18 +334,21 @@ ggplot(FYCouncilingLeft %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 &
 ```
 
 ```{r}
+# Therapy Attending Young Men (18-25) Mental Health Status bar chart (TD).
 ggplot(FYCouncilingLeft %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53)) +
   geom_bar(fill = "red", color = "black", alpha = 0.7) +
   labs(title = "Therapy Attending Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
 ```
 
 ```{r}
+# Therapy Attending Individuals Mental Health Status bar chart (TD).
 ggplot(FYCouncilingLeft %>% filter(MNHLTH53 > 0 & MentalHealthAppointments > 0), aes(x = MNHLTH53)) +
   geom_bar(fill = "red", color = "black", alpha = 0.7) +
   labs(title = "Therapy Attending Individuals Mental Health Status", x = "Mental Health Status", y = "Amount")
 ```
 
 ```{r}
+#Filtering out the missing values (TD/AH).
 FYCouncilingNA <- FYCouncilingLeft %>%
   filter(
     EDUCYR > 0,
@@ -356,7 +361,7 @@ FYCouncilingNA <- FYCouncilingLeft %>%
 ```
 
 ```{r}
-#Splitting Training and Test Sets. (Specifically Counseling Join)
+#Splitting Training and Test Sets. (Specifically Counseling Join) (TD).
 
 FYCouncilingSize <- floor(.75*nrow(FYCouncilingNA))
 
@@ -370,6 +375,7 @@ FYCouncilingTestMental <- FYCouncilingNA$MNHLTH53[-train]
 ```
 
 ```{r}
+#(TD).
 FYCouncilingGLM <- glm(MNHLTH53 ~ .,
                         data = FYCouncilingNA, subset = train)
 
@@ -377,7 +383,7 @@ summary(FYCouncilingGLM)
 ```
 
 ```{r}
-#LDA on FYCounciling
+#LDA on FYCounciling (TD/AH)
 
 require(MASS)
 
@@ -388,7 +394,7 @@ FYCouncilingLDA
 ```
 
 ```{r}
-#Using LDA as a Predictor
+#Using LDA as a Predictor (TD).
 
 FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
 
@@ -396,5 +402,5 @@ FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
 
 table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
-#Now that the LDA is set up, we should really think about what to do with the missing data
+#Now that the LDA is set up, we should really think about what to do with the missing data (TD).
 ```
