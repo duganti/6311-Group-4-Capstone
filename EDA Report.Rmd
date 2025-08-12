@@ -12,7 +12,7 @@ library(e1071)
 library(corrplot)
 library(gbm)
 library(randomForest)
-
+library(pROC)
 ```
 
 ```{r}
@@ -491,7 +491,157 @@ varImpPlot(FYCouncilingRF)
 ```
 
 ```{r}
+#AUC of RF (TD)
 
+FYCouncilingRFroc <- roc(FYCouncilingTestMental, FYCouncilingRFyhat)
 
+auc(FYCouncilingRFroc)
+
+plot(FYCouncilingRFroc)
+```
+
+```{r}
+#Examining the XGBoost AUC (TD)
+
+FYCouncilingBoost2Pred <- predict(FYCouncilingBoost2, newdata = FYCouncilingTest, type = "response")
+
+FYCouncilingBoost2roc <- roc(FYCouncilingTestMental, FYCouncilingBoost2Pred)
+
+auc(FYCouncilingBoost2roc)
+
+plot(FYCouncilingBoost2roc)
+```
+
+```{r}
+#Creating a second Random Forests model without the least used variables. 
+
+FYCouncilingRF2 <- randomForest(MNHLTH53~.-DUPERSID -SEX -RACEV1X -REGION21, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
+```
+
+```{r}
+#Plotting the second Random Forests information (TD)
+
+FYCouncilingRFyhat2 <- predict(FYCouncilingRF2, newdata = FYCouncilingTest)
+mean((FYCouncilingRFyhat2 - FYCouncilingTestMental)^2)
+
+importance(FYCouncilingRF2)
+
+varImpPlot(FYCouncilingRF2)
+```
+```{r}
+#AUC of trimmed RF (TD)
+
+FYCouncilingRF2roc <- roc(FYCouncilingTestMental, FYCouncilingRFyhat2)
+
+auc(FYCouncilingRF2roc)
+
+plot(FYCouncilingRF2roc)
+```
+```{r}
+#Making Mental health Quantitative and Splitting new Training and Test Sets. (TD).
+
+FYCouncilingNA2 <- FYCouncilingNA
+
+FYCouncilingNA2$MNHLTH53[FYCouncilingNA2$MNHLTH53 == 1] <- 'Excellent'
+FYCouncilingNA2$MNHLTH53[FYCouncilingNA2$MNHLTH53 == 2] <- 'Very Good'
+FYCouncilingNA2$MNHLTH53[FYCouncilingNA2$MNHLTH53 == 3] <- 'Good'
+FYCouncilingNA2$MNHLTH53[FYCouncilingNA2$MNHLTH53 == 4] <- 'Fair'
+FYCouncilingNA2$MNHLTH53[FYCouncilingNA2$MNHLTH53 == 5] <- 'Poor'
+
+FYCouncilingNA2$MNHLTH53 <- as.factor(FYCouncilingNA2$MNHLTH53)
+
+FYCouncilingSize2 <- floor(.75*nrow(FYCouncilingNA2))
+
+set.seed(69420)
+
+train2 <- sample(seq_len(nrow(FYCouncilingNA2)), size = FYCouncilingSize2)
+
+FYCouncilingTrain2 <- FYCouncilingNA2[train2, ]
+FYCouncilingTest2 <- FYCouncilingNA2[-train2, ]
+FYCouncilingTrainMental2 <- FYCouncilingNA2$MNHLTH53[train2]
+FYCouncilingTestMental2 <- FYCouncilingNA2$MNHLTH53[-train2]
 
 ```
+
+```{r}
+#Trying categorical data into the RF
+
+FYCouncilingRF3 <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA2, subset = train2, mtry = 4, importance = TRUE)
+```
+
+```{r}
+#Plotting the categorical Random Forests information (TD)
+
+FYCouncilingRFyhat3 <- predict(FYCouncilingRF3, newdata = FYCouncilingTest2, type = "prob")
+mean((FYCouncilingRFyhat3 - FYCouncilingTestMental2)^2)
+
+importance(FYCouncilingRF3)
+
+varImpPlot(FYCouncilingRF3)
+```
+```{r}
+#AUC of categorical RF (TD)
+
+#FYCouncilingRF3roc <- roc(FYCouncilingTestMental2, FYCouncilingRFyhat3)
+
+#auc(FYCouncilingRF3roc)
+
+#plot(FYCouncilingRF3roc)
+
+#I ended up not figuring out how this worked. the VarImpPLot gave me enough information that this wouldn't be a significant leap
+```
+
+```{r}
+#Making Mental health Quantitative Boolean and Splitting new Training and Test Sets. (TD).
+
+FYCouncilingNA3 <- FYCouncilingNA
+
+FYCouncilingNA3$MNHLTH53[FYCouncilingNA3$MNHLTH53 == 1] <- 'Good'
+FYCouncilingNA3$MNHLTH53[FYCouncilingNA3$MNHLTH53 == 2] <- 'Good'
+FYCouncilingNA3$MNHLTH53[FYCouncilingNA3$MNHLTH53 == 3] <- 'Good'
+FYCouncilingNA3$MNHLTH53[FYCouncilingNA3$MNHLTH53 == 4] <- 'Poor'
+FYCouncilingNA3$MNHLTH53[FYCouncilingNA3$MNHLTH53 == 5] <- 'Poor'
+
+FYCouncilingNA3$MNHLTH53 <- as.factor(FYCouncilingNA3$MNHLTH53)
+
+FYCouncilingSize3 <- floor(.75*nrow(FYCouncilingNA3))
+
+set.seed(69420)
+
+train3 <- sample(seq_len(nrow(FYCouncilingNA3)), size = FYCouncilingSize3)
+
+FYCouncilingTrain3 <- FYCouncilingNA3[train3, ]
+FYCouncilingTest3 <- FYCouncilingNA3[-train3, ]
+FYCouncilingTrainMental3 <- FYCouncilingNA3$MNHLTH53[train3]
+FYCouncilingTestMental3 <- FYCouncilingNA3$MNHLTH53[-train3]
+
+```
+
+```{r}
+#Trying categorical data into the RF
+
+FYCouncilingRF4 <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA3, subset = train3, mtry = 4, importance = TRUE)
+```
+
+```{r}
+#Plotting the categorical Boolean Random Forests information (TD)
+
+FYCouncilingRFyhat4 <- predict(FYCouncilingRF4, newdata = FYCouncilingTest3, type = "prob")[,2]
+mean((FYCouncilingRFyhat4 - FYCouncilingTestMental3)^2)
+
+importance(FYCouncilingRF4)
+
+varImpPlot(FYCouncilingRF4)
+```
+
+```{r}
+#AUC of categorical Boolean RF (TD)
+
+FYCouncilingRF4roc <- roc(FYCouncilingTestMental3, FYCouncilingRFyhat4)
+
+auc(FYCouncilingRF4roc)
+
+plot(FYCouncilingRF4roc)
+
+```
+
