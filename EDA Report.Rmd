@@ -10,6 +10,9 @@ output: html_document
 library(tidyverse)
 library(e1071)
 library(corrplot)
+library(gbm)
+library(randomForest)
+
 ```
 
 ```{r}
@@ -371,12 +374,13 @@ train <- sample(seq_len(nrow(FYCouncilingNA)), size = FYCouncilingSize)
 
 FYCouncilingTrain <- FYCouncilingNA[train, ]
 FYCouncilingTest <- FYCouncilingNA[-train, ]
+FYCouncilingTrainMental <- FYCouncilingNA$MNHLTH53[train]
 FYCouncilingTestMental <- FYCouncilingNA$MNHLTH53[-train]
 ```
 
 ```{r}
 #(TD).
-FYCouncilingGLM <- glm(MNHLTH53 ~ .,
+FYCouncilingGLM <- glm(MNHLTH53 ~ . -DUPERSID,
                         data = FYCouncilingNA, subset = train)
 
 summary(FYCouncilingGLM)
@@ -387,7 +391,7 @@ summary(FYCouncilingGLM)
 
 require(MASS)
 
-FYCouncilingLDA <- lda(MNHLTH53 ~ . - EDUCYR,
+FYCouncilingLDA <- lda(MNHLTH53 ~ . -DUPERSID,
                        data = FYCouncilingNA, subset = train)
 
 FYCouncilingLDA
@@ -402,5 +406,92 @@ FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
 
 table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
-#Now that the LDA is set up, we should really think about what to do with the missing data (TD).
+#2414/6438 = 37.5% Prediction Rate.
+```
+
+```{r}
+#LDA on FYCounciling, but without the insignificant variables (TD)
+
+FYCouncilingLDA2 <- lda(MNHLTH53 ~ . - DUPERSID - RACEV1X - TTLP21X - PERWT21F - EDUCYR - REGION21,
+                       data = FYCouncilingNA, subset = train)
+
+FYCouncilingLDA2
+
+```
+
+```{r}
+#Using LDA as a Predictor with just the significant variables (TD)
+
+FYCouncilingLDAPredict2 <- predict(FYCouncilingLDA2, FYCouncilingTest)
+
+#names(FYCouncilingLDAPredict)
+
+table(FYCouncilingLDAPredict2$class, FYCouncilingTestMental)
+#2370/6438 = 36.81% Prediction Rate
+```
+
+```{r}
+#XGBoosting on FYCounciling (TD)
+
+set.seed(42069)
+
+shrinkage_values <- seq(0.01, 0.1, by = 0.01)
+
+mse.values <- c()
+
+mse.values.test <- c()
+
+for(i in shrinkage_values){
+
+  FYCouncilingBoost <- gbm(MNHLTH53~.-SEX -RACEV1X -EDUCYR -POVCAT21 -INSCOV21 -REGION21 -DUPERSID, data = FYCouncilingTrain, distribution = "gaussian", shrinkage = i, n.trees = 1000, interaction.depth = 4)
+  
+  mse.values <- c(mse.values, mean((predict(FYCouncilingBoost, newdata = FYCouncilingTrain, n.trees = 1000) - FYCouncilingTrainMental)^2))
+  
+  mse.values.test <- c(mse.values.test, mean((predict(FYCouncilingBoost, newdata = FYCouncilingTest, n.trees = 1000) - FYCouncilingTestMental)^2))
+}
+```
+
+```{r}
+#Plotting the XGBoost (TD)
+
+plot(shrinkage_values, mse.values)
+
+mse.values
+
+plot(shrinkage_values, mse.values.test)
+```
+
+```{r}
+#Determining the most important predictors for XGBoost (TD)
+
+FYCouncilingBoost2 <- gbm(MNHLTH53~.-SEX -RACEV1X -EDUCYR -POVCAT21 -INSCOV21 -REGION21 -DUPERSID, data = FYCouncilingTrain, distribution = "gaussian", n.trees = 1000, interaction.depth = 4)
+
+summary(FYCouncilingBoost2)
+
+#I don't like how many variables had to be excluded in order for the function to work.This should probably be a RandomForests 
+```
+
+```{r}
+#Random Forests model on FYCounciling (TD)
+
+set.seed(42069)
+
+FYCouncilingRF <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
+```
+
+```{r}
+#Plotting the Random Forests information (TD)
+
+FYCouncilingRFyhat <- predict(FYCouncilingRF, newdata = FYCouncilingTest)
+mean((FYCouncilingRFyhat - FYCouncilingTestMental)^2)
+
+importance(FYCouncilingRF)
+
+varImpPlot(FYCouncilingRF)
+```
+
+```{r}
+
+
+
 ```
