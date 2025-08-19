@@ -648,20 +648,24 @@ plot(FYCouncilingRF4roc)
 
 ```{r}
 #Using SMOTE and converting MNHLTH53 to be a factor (AH)
-FYCouncilingNA3$MNHLTH53 <- as.factor(FYCouncilingNA3$MNHLTH53)
+FYCouncilingNA4 <- FYCouncilingNA3
 
-FYCouncilingSize3 <- floor(.75*nrow(FYCouncilingNA3))
+FYCouncilingNA4$MNHLTH53 <- as.factor(FYCouncilingNA4$MNHLTH53)
+
+FYCouncilingSize4 <- floor(.75*nrow(FYCouncilingNA4))
 
 set.seed(69420)
 
-train3 <- sample(seq_len(nrow(FYCouncilingNA3)), size = FYCouncilingSize3)
+train4 <- sample(seq_len(nrow(FYCouncilingNA4)), size = FYCouncilingSize4)
 
-FYCouncilingTrain3 <- FYCouncilingNA3[train3, ]
-FYCouncilingTest3 <- FYCouncilingNA3[-train3, ]
+FYCouncilingTrain4 <- FYCouncilingNA4[train4, ]
+FYCouncilingTest4 <- FYCouncilingNA4[-train4, ]
+
+X <- FYCouncilingTrain4[, sapply(FYCouncilingTrain4, is.numeric)] #(TD)
 
 FYCounciling_Smote <- smotefamily::SMOTE(
-  X = FYCouncilingTrain3,
-  target = FYCouncilingTrain3$MNHLTH53,
+  X = X,
+  target = FYCouncilingTrain4$MNHLTH53,
   K = 5,
   dup_size = 2
 )
@@ -674,6 +678,9 @@ names(FYCounciling_Smote_Info)[names(FYCounciling_Smote_Info) == "class"] <- "MN
 ```{r}
 #Random Forest model with SMOTE (AH)
 set.seed(42069)
+
+FYCounciling_Smote_Info$MNHLTH53 <- as.factor(FYCounciling_Smote_Info$MNHLTH53) #(TD)
+
 FYCounciling_Smote_RF <- randomForest::randomForest(
   MNHLTH53 ~ . -DUPERSID,
   data = FYCounciling_Smote_Info,
@@ -684,8 +691,8 @@ FYCounciling_Smote_RF <- randomForest::randomForest(
 
 ```{r}
 #Confusion matrix for the new model using smote/ random forest (AH)
-smote_class <- predict(FYCounciling_Smote_RF, newdata = FYCouncilingTest3, type = "class")
-con_matrix <- table(smote_class, FYCouncilingTest3$MNHLTH53)
+smote_class <- predict(FYCounciling_Smote_RF, newdata = FYCouncilingTest4, type = "class")
+con_matrix <- table(smote_class, FYCouncilingTest4$MNHLTH53)
 
 print(con_matrix)
 ```
@@ -709,3 +716,4 @@ plot(ROC_FYCounciling)
 ```{r}
 
 ```
+
