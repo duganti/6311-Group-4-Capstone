@@ -13,6 +13,7 @@ library(corrplot)
 library(gbm)
 library(randomForest)
 library(pROC)
+library(smotefamily)
 ```
 
 ```{r}
@@ -645,3 +646,66 @@ plot(FYCouncilingRF4roc)
 
 ```
 
+```{r}
+#Using SMOTE and converting MNHLTH53 to be a factor (AH)
+FYCouncilingNA3$MNHLTH53 <- as.factor(FYCouncilingNA3$MNHLTH53)
+
+FYCouncilingSize3 <- floor(.75*nrow(FYCouncilingNA3))
+
+set.seed(69420)
+
+train3 <- sample(seq_len(nrow(FYCouncilingNA3)), size = FYCouncilingSize3)
+
+FYCouncilingTrain3 <- FYCouncilingNA3[train3, ]
+FYCouncilingTest3 <- FYCouncilingNA3[-train3, ]
+
+FYCounciling_Smote <- smotefamily::SMOTE(
+  X = FYCouncilingTrain3,
+  target = FYCouncilingTrain3$MNHLTH53,
+  K = 5,
+  dup_size = 2
+)
+
+FYCounciling_Smote_Info <- FYCounciling_Smote$data
+
+names(FYCounciling_Smote_Info)[names(FYCounciling_Smote_Info) == "class"] <- "MNHLTH53"
+```
+
+```{r}
+#Random Forest model with SMOTE (AH)
+set.seed(42069)
+FYCounciling_Smote_RF <- randomForest::randomForest(
+  MNHLTH53 ~ . -DUPERSID,
+  data = FYCounciling_Smote_Info,
+  mtry = 4,
+  importance = TRUE
+)
+```
+
+```{r}
+#Confusion matrix for the new model using smote/ random forest (AH)
+smote_class <- predict(FYCounciling_Smote_RF, newdata = FYCouncilingTest3, type = "class")
+con_matrix <- table(smote_class, FYCouncilingTest3$MNHLTH53)
+
+print(con_matrix)
+```
+
+```{r}
+#ROC and AUC for new smote and random forest model (AH)
+smote_probability <- predict(FYCounciling_Smote_RF, newdata = FYCouncilingTest3, type = "prob")[, "Poor"]
+ROC_FYCounciling <- roc(
+  FYCouncilingTest3$MNHLTH53,
+  smote_probability
+)
+
+auc(ROC_FYCounciling)
+plot(ROC_FYCounciling)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
