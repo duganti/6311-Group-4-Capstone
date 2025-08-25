@@ -14,6 +14,9 @@ library(gbm)
 library(randomForest)
 library(pROC)
 library(smotefamily)
+library(class)
+library(pls)
+library(caret)
 ```
 
 ```{r}
@@ -405,9 +408,9 @@ FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
 
 #names(FYCouncilingLDAPredict)
 
-table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
+LDA_Matrix <- table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
-#2414/6438 = 37.5% Prediction Rate.
+confusionMatrix(LDA_Matrix)
 ```
 
 ```{r}
@@ -427,8 +430,9 @@ FYCouncilingLDAPredict2 <- predict(FYCouncilingLDA2, FYCouncilingTest)
 
 #names(FYCouncilingLDAPredict)
 
-table(FYCouncilingLDAPredict2$class, FYCouncilingTestMental)
-#2370/6438 = 36.81% Prediction Rate
+LDA_Matrix2<- table(FYCouncilingLDAPredict2$class, FYCouncilingTestMental)
+
+confusionMatrix(LDA_Matrix2)
 ```
 
 ```{r}
@@ -694,7 +698,7 @@ FYCounciling_Smote_RF <- randomForest::randomForest(
 smote_class <- predict(FYCounciling_Smote_RF, newdata = FYCouncilingTest4, type = "class")
 con_matrix <- table(smote_class, FYCouncilingTest4$MNHLTH53)
 
-print(con_matrix)
+confusionMatrix(con_matrix)
 ```
 
 ```{r}
@@ -710,10 +714,84 @@ plot(ROC_FYCounciling)
 ```
 
 ```{r}
+#VarImpPlot and Importance of Smote (TD)
+
+importance(FYCounciling_Smote_RF)
+
+varImpPlot(FYCounciling_Smote_RF)
+```
+
+```{r}
+#Linear Model on FYCounciling (TD)
+
+set.seed(42069)
+
+FYCouncilingLM <- lm(MNHLTH53~.-DUPERSID, data = FYCouncilingNA, subset = train)
+
+summary(FYCouncilingLM)
+
+#Looking at Test Error and Con Matrix (TD)
+
+FYCouncilingLMyhat <- predict(FYCouncilingLM, newdata = FYCouncilingTest)
+mean((FYCouncilingLMyhat - FYCouncilingTestMental)^2)
+
+FYCouncilingLMyhatRound <- round(FYCouncilingLMyhat)
+con_matrixLM <- table(FYCouncilingLMyhatRound, FYCouncilingTest$MNHLTH53)
+confusionMatrix(con_matrixLM)
+```
+
+```{r}
+#PCR Model on FYCounciling (TD)
+
+FYCouncilingPCR <- pcr(MNHLTH53~.-DUPERSID, data = FYCouncilingNA, subset = train, scale = TRUE, , validation = "CV")
+
+summary(FYCouncilingPCR)
+
+validationplot(FYCouncilingPCR, val.type = "MSEP")
+
+FYCouncilingPCRPred <- predict(FYCouncilingPCR, FYCouncilingTest, ncomp = 32)
+
+mean((FYCouncilingPCRPred - FYCouncilingTestMental)^2)
+```
+
+```{r}
+#Native Bayes Boolean on FYCounciling (TD)
+
+FYCouncilingNB <- naiveBayes(MNHLTH53~.-DUPERSID, data = FYCouncilingNA3)
+
+FYCouncilingNB
+
+FYCouncilingNBPred <- predict(FYCouncilingNB, newdata = FYCouncilingTest3)
+
+con_matrixNB <- table(FYCouncilingNBPred, FYCouncilingTest3$MNHLTH53)
+confusionMatrix(con_matrixNB)
+```
+
+```{r}
+#Native Bayes on FYCounciling (TD)
+
+FYCouncilingNB2 <- naiveBayes(MNHLTH53~.-DUPERSID, data = FYCouncilingNA)
+
+FYCouncilingNB2
+
+FYCouncilingNBPred2 <- predict(FYCouncilingNB2, newdata = FYCouncilingTest)
+
+con_matrixNB2 <- table(FYCouncilingNBPred2, FYCouncilingTest$MNHLTH53)
+confusionMatrix(con_matrixNB2)
+
+FYCouncilingNBroc2 <- roc(FYCouncilingTestMental, as.numeric(FYCouncilingNBPred2))
+
+auc(FYCouncilingNBroc2)
+
+plot(FYCouncilingNBroc2)
+```
+
+```{r}
 
 ```
 
 ```{r}
 
 ```
+
 
