@@ -26,8 +26,6 @@ FYConsolidatedData = read.csv("h233.csv")
 LongitudeData3Y = read.csv("h226.csv")
 OfficeBasedVisits = read.csv("h229g.csv")
 JobFile = read.csv("h227.csv")
-load("NSDUH_2021.RData")
-NSDUH = PUF2021_121323
 ```
 
 ```{r}
@@ -208,7 +206,7 @@ ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X 
 
 ```{r}
 #Young Men (18-25) Mental Health Status bar chart (AH).
-ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25), aes(x = MNHLTH53)) +
+ggplot(FYConsolidatedDataClean %>% filter(SEX == 'Male' & AGE21X >= 18 & AGE21X <= 25 & MNHLTH53 > 0), aes(x = MNHLTH53)) +
   geom_bar(fill = "red", color = "black", alpha = 0.7) +
   labs(title = "Young Men (18-25) Mental Health Status", x = "Mental Health Status", y = "Amount")
 ```
@@ -278,8 +276,7 @@ print(correlation_matrix)
 
 ```{r}
 #Correlation matrix visual (AH).
-corrplot(correlation_matrix, method = "circle",
-         addCoef.col = "black")
+corrplot::corrplot(correlation_matrix, method = "circle", addCoef.col = "black")
 ```
 
 ```{r}
@@ -383,7 +380,7 @@ FYCouncilingTestMental <- FYCouncilingNA$MNHLTH53[-train]
 ```
 
 ```{r}
-#(TD).
+#GLM to show significance of Coefficients (TD).
 FYCouncilingGLM <- glm(MNHLTH53 ~ . -DUPERSID,
                         data = FYCouncilingNA, subset = train)
 
@@ -406,15 +403,13 @@ FYCouncilingLDA
 
 FYCouncilingLDAPredict <- predict(FYCouncilingLDA, FYCouncilingTest)
 
-#names(FYCouncilingLDAPredict)
-
 LDA_Matrix <- table(FYCouncilingLDAPredict$class, FYCouncilingTestMental)
 
 confusionMatrix(LDA_Matrix)
 ```
 
 ```{r}
-#LDA on FYCounciling, but without the insignificant variables (TD)
+#LDA on FYCounciling, but without the insignificant variables deturmined from the GLM (TD)
 
 FYCouncilingLDA2 <- lda(MNHLTH53 ~ . - DUPERSID - RACEV1X - TTLP21X - PERWT21F - EDUCYR - REGION21,
                        data = FYCouncilingNA, subset = train)
@@ -481,7 +476,7 @@ summary(FYCouncilingBoost2)
 
 set.seed(42069)
 
-FYCouncilingRF <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
+FYCouncilingRF <- randomForest(MNHLTH53~.-DUPERSID - AGE21X, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
 ```
 
 ```{r}
@@ -520,7 +515,7 @@ plot(FYCouncilingBoost2roc)
 ```{r}
 #Creating a second Random Forests model without the least used variables. 
 
-FYCouncilingRF2 <- randomForest(MNHLTH53~.-DUPERSID -SEX -RACEV1X -REGION21, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
+FYCouncilingRF2 <- randomForest(MNHLTH53~.-DUPERSID -SEX -RACEV1X -REGION21 - AGE21X, data = FYCouncilingNA, subset = train, mtry = 4, importance = TRUE)
 ```
 
 ```{r}
@@ -533,6 +528,7 @@ importance(FYCouncilingRF2)
 
 varImpPlot(FYCouncilingRF2)
 ```
+
 ```{r}
 #AUC of trimmed RF (TD)
 
@@ -542,6 +538,7 @@ auc(FYCouncilingRF2roc)
 
 plot(FYCouncilingRF2roc)
 ```
+
 ```{r}
 #Making Mental health Quantitative and Splitting new Training and Test Sets. (TD).
 
@@ -571,7 +568,7 @@ FYCouncilingTestMental2 <- FYCouncilingNA2$MNHLTH53[-train2]
 ```{r}
 #Trying categorical data into the RF
 
-FYCouncilingRF3 <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA2, subset = train2, mtry = 4, importance = TRUE)
+FYCouncilingRF3 <- randomForest(MNHLTH53~.-DUPERSID - AGE21X, data = FYCouncilingNA2, subset = train2, mtry = 4, importance = TRUE)
 ```
 
 ```{r}
@@ -583,17 +580,6 @@ mean((FYCouncilingRFyhat3 - FYCouncilingTestMental2)^2)
 importance(FYCouncilingRF3)
 
 varImpPlot(FYCouncilingRF3)
-```
-```{r}
-#AUC of categorical RF (TD)
-
-#FYCouncilingRF3roc <- roc(FYCouncilingTestMental2, FYCouncilingRFyhat3)
-
-#auc(FYCouncilingRF3roc)
-
-#plot(FYCouncilingRF3roc)
-
-#I ended up not figuring out how this worked. the VarImpPLot gave me enough information that this wouldn't be a significant leap
 ```
 
 ```{r}
@@ -625,7 +611,9 @@ FYCouncilingTestMental3 <- FYCouncilingNA3$MNHLTH53[-train3]
 ```{r}
 #Trying categorical data into the RF
 
-FYCouncilingRF4 <- randomForest(MNHLTH53~.-DUPERSID, data = FYCouncilingNA3, subset = train3, mtry = 4, importance = TRUE)
+FYCouncilingRF4 <- randomForest(MNHLTH53~.-DUPERSID - AGE21X, data = FYCouncilingNA3, subset = train3, mtry = 4, importance = TRUE)
+
+FYCouncilingRF4
 ```
 
 ```{r}
@@ -647,7 +635,6 @@ FYCouncilingRF4roc <- roc(FYCouncilingTestMental3, FYCouncilingRFyhat4)
 auc(FYCouncilingRF4roc)
 
 plot(FYCouncilingRF4roc)
-
 ```
 
 ```{r}
@@ -787,11 +774,38 @@ plot(FYCouncilingNBroc2)
 ```
 
 ```{r}
+#Naive Bayes 10 fold Cross validation (TD)
+require(klaR)
 
+features <- setdiff(names(FYCouncilingNA3), "MNHLTH53")
+
+NBtraincontrol <- trainControl(method = "cv", number = 10)
+
+FYCouncilingNBcv <- train(
+  x = FYCouncilingTrain3[, features],
+  y = FYCouncilingTrain3$MNHLTH53,
+  method = "nb",
+  trControl = NBtraincontrol
+  )
+
+confusionMatrix(FYCouncilingNBcv)
 ```
 
 ```{r}
+#NB Cross Validation Correlation Plot and ROC (TD)
+FYCouncilingNBPredCV <- predict(FYCouncilingNBcv, newdata = FYCouncilingTest3)
 
+FYCouncilingNBrocCV <- roc(FYCouncilingTestMental3, as.numeric(FYCouncilingNBPredCV))
+
+auc(FYCouncilingNBrocCV)
+
+plot(FYCouncilingNBrocCV)
+
+con_matrixNBCV <- table(FYCouncilingNBPredCV, FYCouncilingTest3$MNHLTH53)
+confusionMatrix(con_matrixNBCV)
 ```
+
+
+
 
 
